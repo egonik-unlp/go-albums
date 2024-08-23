@@ -14,13 +14,15 @@ import (
 func main() {
 	spotifyClient := spotify_auth.Authenticate()
 
-	file, err := os.ReadFile("dump_albumes.txt")
+	file, err := os.ReadFile("dump_albumes_all.txt")
 	if err != nil {
 		fmt.Println("cannot read album file")
 	}
 	str := string(file)
-	for _, album := range strings.Split(str, "\n") {
-		fmt.Println(album)
+	albumList := strings.Split(str, "\n")
+	fmt.Printf("Tengo una lista de %d albumes", len(albumList))
+	for _, album := range albumList[100:300] {
+		// fmt.Println(album)
 		dec_album := strings.SplitAfterN(album, "->", 2)
 
 		album, _ := strings.CutSuffix(dec_album[0], "->")
@@ -29,12 +31,13 @@ func main() {
 		if !worked {
 			continue
 		}
-		fmt.Printf("track_id %s\n", id)
+		// fmt.Printf("track_id %s\n", id)
 		song, err := spotifyClient.GetTrack(spotify.ID(id))
 		if err != nil {
 			fmt.Println("Couldnt find track information")
 		}
-		fileName := fmt.Sprintf("dump/albumArt_%s.jpg", strings.TrimSpace(album))
+		proper_album := strings.TrimSpace(album)
+		fileName := fmt.Sprintf("dump2/albumArt_%s.jpg", proper_album)
 		saveFile, err := os.Create(fileName)
 		if err != nil {
 			fmt.Printf("Cannot create image dump file %s", fileName)
@@ -44,6 +47,7 @@ func main() {
 		// }
 
 		album_image := song.Album.Images[0]
+		fmt.Printf("El arte para el disco %s se está descargando\n", proper_album)
 		album_image.Download(saveFile)
 
 	}
