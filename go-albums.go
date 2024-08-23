@@ -13,6 +13,13 @@ import (
 
 func main() {
 	spotifyClient := spotify_auth.Authenticate()
+	folderName := "AlbumArt"
+	if !folderExists(folderName) {
+		fmt.Println("Entramo?")
+		if err := os.Mkdir("AlbumArt", 0700); err != nil {
+			fmt.Println("No se puede crear el directorio de salida")
+		}
+	}
 
 	file, err := os.ReadFile("dump_albumes_all.txt")
 	if err != nil {
@@ -20,8 +27,8 @@ func main() {
 	}
 	str := string(file)
 	albumList := strings.Split(str, "\n")
-	fmt.Printf("Tengo una lista de %d albumes", len(albumList))
-	for _, album := range albumList[100:300] {
+	fmt.Printf("Tengo una lista de %d albumes\n", len(albumList))
+	for _, album := range albumList {
 		// fmt.Println(album)
 		dec_album := strings.SplitAfterN(album, "->", 2)
 
@@ -37,7 +44,7 @@ func main() {
 			fmt.Println("Couldnt find track information")
 		}
 		proper_album := strings.TrimSpace(album)
-		fileName := fmt.Sprintf("dump2/albumArt_%s.jpg", proper_album)
+		fileName := fmt.Sprintf("%s/albumArt_%s.jpg", folderName, proper_album)
 		saveFile, err := os.Create(fileName)
 		if err != nil {
 			fmt.Printf("Cannot create image dump file %s", fileName)
@@ -50,5 +57,13 @@ func main() {
 		fmt.Printf("El arte para el disco %s se está descargando\n", proper_album)
 		album_image.Download(saveFile)
 
+	}
+}
+func folderExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	} else {
+		return true
 	}
 }
